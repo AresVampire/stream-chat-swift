@@ -348,14 +348,14 @@ class ChannelUpdater: Worker {
     /// - Parameters:
     ///   - currentUserId: the id of the current user.
     ///   - cid: The Id of the channel where you want to add the users.
-    ///   - userIds: User ids to add to the channel.
+    ///   - members: The members input data to be added.
     ///   - message: Optional system message sent when adding a member.
     ///   - hideHistory: Hide the history of the channel to the added member.
     ///   - completion: Called when the API call is finished. Called with `Error` if the remote update fails.
     func addMembers(
         currentUserId: UserId? = nil,
         cid: ChannelId,
-        userIds: Set<UserId>,
+        members: [MemberInfo],
         message: String? = nil,
         hideHistory: Bool,
         completion: ((Error?) -> Void)? = nil
@@ -364,7 +364,7 @@ class ChannelUpdater: Worker {
         apiClient.request(
             endpoint: .addMembers(
                 cid: cid,
-                userIds: userIds,
+                members: members.map { MemberInfoRequest(userId: $0.userId, extraData: $0.extraData) },
                 hideHistory: hideHistory,
                 messagePayload: messagePayload
             )
@@ -695,7 +695,7 @@ extension ChannelUpdater {
     func addMembers(
         currentUserId: UserId? = nil,
         cid: ChannelId,
-        userIds: Set<UserId>,
+        members: [MemberInfo],
         message: String? = nil,
         hideHistory: Bool
     ) async throws {
@@ -703,7 +703,7 @@ extension ChannelUpdater {
             addMembers(
                 currentUserId: currentUserId,
                 cid: cid,
-                userIds: userIds,
+                members: members,
                 message: message,
                 hideHistory: hideHistory
             ) { error in
